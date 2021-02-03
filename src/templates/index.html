@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Socket.IO chat</title>
+    <style>
+      body {
+        margin: 0;
+        padding-bottom: 3rem;
+        font-family: Roboto, Helvetica, Arial, sans-serif;
+      }
+
+      #form {
+        background: rgba(0, 0, 0, 0.15);
+        padding: 0.25rem;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        display: flex;
+        height: 3rem;
+        box-sizing: border-box;
+        backdrop-filter: blur(10px);
+        justify-content: center;
+      }
+      .info {
+        border: none;
+        padding: 0 1rem;
+        border-radius: 2rem;
+        margin: 0.25rem;
+      }
+      #input:focus {
+        outline: none;
+      }
+      #form > button {
+        background: #333;
+        border: none;
+        padding: 0 1rem;
+        margin: 0.25rem;
+        border-radius: 2rem;
+        outline: none;
+        color: #fff;
+      }
+
+      #messages {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        border-radius: 2rem;
+      }
+      #messages > li {
+        padding: 0.5rem 1rem;
+      }
+      #messages > li:nth-child(odd) {
+        background: #efefef;
+      }
+
+      /* Reset Select */
+      select {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        -ms-appearance: none;
+        appearance: none;
+        outline: 0;
+        box-shadow: none;
+        border: 0 !important;
+        background: #ffffff;
+        background-image: none;
+      }
+      select::-ms-expand {
+        display: none;
+      }
+      .select {
+        position: relative;
+        display: flex;
+        height: 3em;
+        line-height: 3;
+        background: #ffffff;
+        overflow: hidden;
+        border-radius: 0.25em;
+      }
+      select {
+        border: none;
+        padding: 0 1rem;
+        border-radius: 2rem;
+        margin: 0.25rem;
+      }
+
+      .select::after {
+        content: "\25BC";
+        position: absolute;
+        top: 0;
+        right: 0;
+        padding: 0 1em;
+        background: #ffffff;
+        cursor: pointer;
+        pointer-events: none;
+        -webkit-transition: 0.25s all ease;
+        -o-transition: 0.25s all ease;
+        transition: 0.25s all ease;
+      }
+      .select:hover::after {
+        color: inherit;
+      }
+    </style>
+  </head>
+  <body>
+    <ul id="chat"></ul>
+    <form id="form" action="">
+      <input id="nome" placeholder="nome" autocomplete="off" class="info" />
+      <input
+        id="input"
+        placeholder="mensagem"
+        autocomplete="off"
+        class="info"
+      />
+      <input
+        id="eventInput"
+        placeholder="event"
+        autocomplete="off"
+        class="info"
+      />
+      
+      <input id="sala" placeholder="sala" autocomplete="off" class="info" />
+      <button>send</button>
+    </form>
+  </body>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var socket = io();
+    var form = document.getElementById("form");
+    var messageInput = document.getElementById("input");
+    var nome = document.getElementById("nome");
+    var sala = document.getElementById("sala");
+    var chat = document.getElementById("chat");
+    var eventInput = document.getElementById("eventInput");
+
+
+    console.log(socket);
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      data = {
+        room: {
+          id: parseInt(sala.value),
+        },
+        user: nome.value,
+        message: messageInput.value,
+        date: Date.now(),
+      };
+      socket.emit(eventInput.value, data);
+      input.value = "";
+    });
+
+    socket.on("new-message", (obj) => {
+      var time = new Date();
+      var node = document.createElement("li");
+      var textnode = document.createTextNode(JSON.stringify(obj));
+      console.log(JSON.stringify(obj))
+      node.appendChild(textnode);
+      chat.appendChild(node);
+    });
+  </script>
+</html>
