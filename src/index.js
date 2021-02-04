@@ -11,31 +11,30 @@ app.get("/", (req, res) => {
 });
 
 io.on("connection", (client) => {
-  client.on("create-room", (data) => {
-    client.join(data.room.id);
-    io.to(data.room.id).emit("new-message", {
-      message: `room ${data.room.id} created successfully`,
-    });
-  });
 
-  client.on("join-room", (data) => {
-    if (data.room.id) {
-      client.join(data.room.id);
-      io.to(data.room.id).emit("new-message", {
-        message: `user ${data.user} connected`,
+  client.on("join-room", ({ roomId, name}) => {
+    if (roomId) {
+      client.join(roomId);
+      io.to(roomId).emit("new-user", {
+        message: `new user ${name} connected!`,
       });
     }
   });
 
-  client.on("send-message", (data) => {
-    if (data.room.id) {
-      io.to(data.room.id).emit("new-message", data);
+  client.on("send-message", ({ roomId, name, message}) => {
+    if (roomId) {
+      io.to(roomId).emit("new-message", {
+        message,
+        name,
+      });
     }
   });
 
-  client.on("disconnect", () => {
-    io.to(data.room.id).emit("new-message", `user ${client.id} disconnected`);
+  client.on("disconnecting", function () {
+    let rooms = Object.keys(client.rooms);
+    rooms.forEach( room => client.to(room).emit("connection left", ` ${client.id} + " has left`));
   });
+  
 });
 
 server.listen(process.env.PORT || 3000);
